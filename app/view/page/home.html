@@ -1,0 +1,92 @@
+{% extends 'template/jhTemplateV4.html'%}
+
+{% block vueTemplate %}
+
+<script type="text/html" id="app-template">
+<div>
+<v-app mobile-breakpoint="sm">
+
+  <app-header></app-header>
+    <v-main class="mt-15">
+      <div class="jh-page-body-container px-8">
+        <v-row>
+          <v-col cols="12" sm="12" md="4" xl="3" v-for="item in toolList">
+            <a :href="item.url" style="text-decoration: none">
+              <v-card  elevation="2">
+                <v-card-title>{{item.title}}</v-card-title>
+                <v-card-text>{{item.title}}</v-card-text>
+              </v-card>
+            </a>
+          </v-col>
+        </v-row>
+      </div>
+    </v-main>
+  </v-app>
+
+<jh-toast />
+<jh-mask />
+<jh-confirm-dialog />
+</div>
+</script>
+
+<div id="app">
+</div>
+
+{% endblock %}
+
+{% block vueScript %}
+{% include 'component/app-header.html' %}
+
+<script type="module">
+  new Vue({
+    el: '#app',
+    template: '#app-template',
+    vuetify: new Vuetify(),
+    data: () => ({
+      toolList: [
+        {
+          title: '创客贴代下载',
+          desc: '创客贴网站下载工具，支持各种类型各种大小各种质量的设计图下载',
+          url: '/<$ ctx.app.config.appId $>/page/ckt',
+        },
+        // {
+        //   title: '剪映srt导入导出',
+        //   desc: '剪映剪辑软件导入导出srt字幕小工具',
+        //   url: '/jianyin-srt',
+        // },
+        // {
+        //   title: '视频播放器',
+        //   desc: '支持播放m3u8视频和各种视频格式的链接',
+        //   url: '/video',
+        // },
+        // {
+        //   title: '抖音无水印下载',
+        //   desc: '抖音视频无水印解析下载工具，支持下载各种质量的小视频',
+        //   url: '/douyin',
+        // },
+        // {
+        //   title: 'AI绘画提示词生成器',
+        //   desc: 'AI绘画提示词选择器，目前收集了常用的800多个AI绘画常用的提示词和标签，选择标签生成AI绘画所需的提示词以后就可以去Novelai或者Stable Diffusion画图啦。',
+        //   url: '/draw',
+        // },
+        // {
+        //   title: 'ChatGPT提示词',
+        //   desc: 'ChatGPT调教指南|咒语指南|聊天提示词指南|学习指南',
+        //   url: '/gpt',
+        // }
+      ]
+    }),
+    watch: {
+
+    },
+    async created() {
+    },
+    mounted() {
+    },
+    methods: {
+    }
+  })
+</script>
+
+<style scoped>
+</style>{% endblock %}

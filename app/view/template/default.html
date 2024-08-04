@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- 设置页面默认参数 >>>>>>>>>>>>> -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    <$ ctx.app.config.appTitle $>
+  </title>
+  <meta charset="utf-8" name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <!-- <<<<<<<<<<<<< 设置页面默认参数 -->
+
+  <!-- 加载第三方库CSS >>>>>>>>>>>>> -->
+  <link href="/<$ ctx.app.config.appId $>/public/lib/vuetify/materialdesignicons.min.css" rel="stylesheet">
+  <!-- <<<<<<<<<<<<< 加载第三方库CSS -->
+
+  <!-- 加载第三方库JS >>>>>>>>>>>>> -->
+  <script src="/<$ ctx.app.config.appId $>/public/lib/lodash/lodash.min.js"></script>
+  <script src="/<$ ctx.app.config.appId $>/public/lib/dayjs/dayjs.min.js"></script>
+  <script src="/<$ ctx.app.config.appId $>/public/lib/axios/axios.min.js"></script>
+  <script src="/<$ ctx.app.config.appId $>/public/lib/vue/vue.min.js"></script>
+  <!-- <<<<<<<<<<<<< 加载第三方库JS -->
+
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+
+  {% block htmlHead %}
+  {% endblock %}
+
+</head>
+
+<body>
+
+  {% block vueTemplate %}
+  {% endblock %}
+  
+  <!-- 加载工具脚本 >>>>>>>>>>>>> -->
+  {% include 'utility/jianghuJs/prepareAppInfoV4.html' %}
+  {% include 'utility/jianghuJs/prepareUserInfoV4.html' %}
+  {% include 'utility/jianghuJs/jianghuAxiosV4.html' %}
+  {% include 'utility/jianghuJs/htmlErrorCollectionV4.html' %}
+  {% include 'utility/jianghuJs/jianghuDisplayTextV4.html' %}
+  {% include 'utility/jianghuJs/uiActionV4.1.html' %}
+  {% include 'common/jianghuJs/bugfixTableWheelEvent.html' %}
+  {% include 'common/jianghuJs/bugfixDrawerOutsideClick.html' %}
+  {% include 'common/jianghuJs/fixedTableColV4.html' %}
+  <!-- <<<<<<<<<<<<< 加载工具脚本 -->
+
+
+
+  {% block vueScript %}
+  {% endblock %}
+</body>

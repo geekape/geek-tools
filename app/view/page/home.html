@@ -1,92 +1,117 @@
-{% extends 'template/jhTemplateV4.html'%}
+{% extends 'template/default.html'%}
 
 {% block vueTemplate %}
 
 <script type="text/html" id="app-template">
-<div>
-<v-app mobile-breakpoint="sm">
+    <v-app>
+        <header class="bg-white shadow-md">
+            <div class="container mx-auto navbar bg-base-100">
+                <div class="flex-1">
+                  <a class="text-xl font-bold black--text">极客在线工具箱</a>
+                </div>
+                <div class="flex-none">
+                  <ul class="menu menu-horizontal px-1">
+                    <li><a href="/<$ ctx.app.config.appId $>/page/login">Login</a></li>
+                  </ul>
+                </div>
+              </div>
+        </header>
+        <main class="container mx-auto mt-6">
+            <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow-md">
+                <div class="flex flex-1 space-x-4">
+                    <button @click="category=item.title" v-for="item in toolsCate" :class="`btn btn-outline btn-sm ${item.title==category && 'btn-active'}`">{{item.title}}</button>
+                </div>
+                <div class="relative">
+                    <label class="input input-bordered flex items-center gap-2">
+                        <input type="text" v-model="searchInput" class="grow" placeholder="Search" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 16 16"
+                          fill="currentColor"
+                          class="h-4 w-4 opacity-70">
+                          <path
+                            fill-rule="evenodd"
+                            d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                            clip-rule="evenodd" />
+                        </svg>
+                      </label>
+                </div>
+            </div>
+            <div class="mt-6" v-if="item.list" v-for="item in toolsCateFilter">
+                <h2 class="text-lg font-semibold"># {{item.title}}</h2>
+                <div class="grid grid-cols-3 gap-6 mt-4">
+                    <div class="card bg-base-100 p-4 shadow-xl" v-for="tool in item.list">
+                        <div class="flex">
+                            <img :src="`/<$ ctx.app.config.appId $>/upload/${tool.logo}`" alt="Base64 Image" class="h-16 object-cover rounded-md">
+                            <div class="ml-3 flex-1">
+                                <h3 class="mt-4 font-semibold">{{tool.title}}</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 mt-2 truncate">{{tool.desc}}</p>
 
-  <app-header></app-header>
-    <v-main class="mt-15">
-      <div class="jh-page-body-container px-8">
-        <v-row>
-          <v-col cols="12" sm="12" md="4" xl="3" v-for="item in toolList">
-            <a :href="item.url" style="text-decoration: none">
-              <v-card  elevation="2">
-                <v-card-title>{{item.title}}</v-card-title>
-                <v-card-text>{{item.title}}</v-card-text>
-              </v-card>
-            </a>
-          </v-col>
-        </v-row>
-      </div>
-    </v-main>
-  </v-app>
+                       <button class="btn btn-md mt-3 btn-sm btn-neutral btn-block">进入</button>
 
-<jh-toast />
-<jh-mask />
-<jh-confirm-dialog />
-</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    <v-app>
 </script>
 
 <div id="app">
 </div>
 
+
 {% endblock %}
 
 {% block vueScript %}
-{% include 'component/app-header.html' %}
 
 <script type="module">
-  new Vue({
-    el: '#app',
-    template: '#app-template',
-    vuetify: new Vuetify(),
-    data: () => ({
-      toolList: [
-        {
-          title: '创客贴代下载',
-          desc: '创客贴网站下载工具，支持各种类型各种大小各种质量的设计图下载',
-          url: '/<$ ctx.app.config.appId $>/page/ckt',
+
+    new Vue({
+        el: '#app',
+        template: '#app-template',
+        data: () => ({
+            category: '所有',
+            toolsList: [],
+            toolsCate: [],
+
+            searchInput: null,
+        }),
+        computed: {
+            toolsListFilter() {
+                if (!this.searchInput) return this.toolsList
+                return this.toolsList.filter(item => item.title.includes(this.searchInput))
+            },
+          
+            toolsCateFilter() {
+                return this.toolsCate
+            }
         },
-        // {
-        //   title: '剪映srt导入导出',
-        //   desc: '剪映剪辑软件导入导出srt字幕小工具',
-        //   url: '/jianyin-srt',
-        // },
-        // {
-        //   title: '视频播放器',
-        //   desc: '支持播放m3u8视频和各种视频格式的链接',
-        //   url: '/video',
-        // },
-        // {
-        //   title: '抖音无水印下载',
-        //   desc: '抖音视频无水印解析下载工具，支持下载各种质量的小视频',
-        //   url: '/douyin',
-        // },
-        // {
-        //   title: 'AI绘画提示词生成器',
-        //   desc: 'AI绘画提示词选择器，目前收集了常用的800多个AI绘画常用的提示词和标签，选择标签生成AI绘画所需的提示词以后就可以去Novelai或者Stable Diffusion画图啦。',
-        //   url: '/draw',
-        // },
-        // {
-        //   title: 'ChatGPT提示词',
-        //   desc: 'ChatGPT调教指南|咒语指南|聊天提示词指南|学习指南',
-        //   url: '/gpt',
-        // }
-      ]
-    }),
-    watch: {
+        async created() {
+            this.getToolList()
+        },
+        methods: {
+            async getToolList() {
+                const rows = (await window.jianghuAxios({
+                    data: {
+                        appData: {
+                            pageId: 'home',
+                            actionId: 'getToolList',
+                            actionData: {},
+                        }
+                    }
+                })).data.appData.resultData.rows;
+                this.toolsList = rows;
 
-    },
-    async created() {
-    },
-    mounted() {
-    },
-    methods: {
-    }
-  })
+                const toolsCate = _.groupBy(rows, 'category')
+                this.toolsCate = [...this.toolsCate, ...Object.keys(toolsCate).map(groupName => ({
+                    title: groupName,
+                    list: toolsCate[groupName]
+                }))]
+
+            }
+        }
+    })
 </script>
-
-<style scoped>
-</style>{% endblock %}
+{% endblock %}

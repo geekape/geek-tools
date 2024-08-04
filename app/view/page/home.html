@@ -3,59 +3,47 @@
 {% block vueTemplate %}
 
 <script type="text/html" id="app-template">
-    <v-app>
-        <header class="bg-white shadow-md">
-            <div class="container mx-auto navbar bg-base-100">
-                <div class="flex-1">
-                  <a class="text-xl font-bold black--text">极客在线工具箱</a>
-                </div>
-                <div class="flex-none">
-                  <ul class="menu menu-horizontal px-1">
-                    <li><a href="/<$ ctx.app.config.appId $>/page/login">Login</a></li>
-                  </ul>
-                </div>
-              </div>
-        </header>
-        <main class="container mx-auto mt-6">
-            <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow-md">
-                <div class="flex flex-1 space-x-4">
-                    <button @click="category=item.title" v-for="item in toolsCate" :class="`btn btn-outline btn-sm ${item.title==category && 'btn-active'}`">{{item.title}}</button>
-                </div>
-                <div class="relative">
-                    <label class="input input-bordered flex items-center gap-2">
-                        <input type="text" v-model="searchInput" class="grow" placeholder="Search" />
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 16 16"
-                          fill="currentColor"
-                          class="h-4 w-4 opacity-70">
-                          <path
-                            fill-rule="evenodd"
-                            d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                            clip-rule="evenodd" />
-                        </svg>
-                      </label>
-                </div>
+    <main class="container mx-auto mt-6">
+        <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow-md">
+            <div class="flex flex-1 space-x-4">
+                <button @click="category=item.title" v-for="item in toolsCate" :class="`btn btn-outline btn-sm ${item.title==category && 'btn-active'}`">{{item.title}}</button>
             </div>
-            <div class="mt-6" v-if="item.list" v-for="item in toolsCateFilter">
-                <h2 class="text-lg font-semibold"># {{item.title}}</h2>
-                <div class="grid grid-cols-3 gap-6 mt-4">
-                    <div class="card bg-base-100 p-4 shadow-xl" v-for="tool in item.list">
-                        <div class="flex">
-                            <img :src="`/<$ ctx.app.config.appId $>/upload/${tool.logo}`" alt="Base64 Image" class="h-16 object-cover rounded-md">
-                            <div class="ml-3 flex-1">
-                                <h3 class="mt-4 font-semibold">{{tool.title}}</h3>
-                            </div>
+            <div class="relative">
+                <label class="input input-bordered flex items-center gap-2">
+                    <input type="text" v-model="searchInput" class="grow" placeholder="Search" />
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        class="h-4 w-4 opacity-70">
+                        <path
+                        fill-rule="evenodd"
+                        d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                        clip-rule="evenodd" />
+                    </svg>
+                    </label>
+            </div>
+        </div>
+        <div class="mt-6" v-if="item.list" v-for="item in toolsCateFilter">
+            <h2 class="text-lg font-semibold"># {{item.title}}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4  gap-6 mt-4">
+                <div class="card bg-base-100 p-4 shadow-xl" v-for="tool in item.list">
+                    <div class="flex">
+                        <img :src="`/<$ ctx.app.config.appId $>/upload/${tool.logo}`" alt="Base64 Image" class="h-16 object-cover rounded-md">
+                        <div class="ml-3 flex-1">
+                            <h3 class="mt-4 font-semibold">{{tool.title}}</h3>
                         </div>
-                        <p class="text-gray-500 mt-2 truncate">{{tool.desc}}</p>
-
-                       <button class="btn btn-md mt-3 btn-sm btn-neutral btn-block">进入</button>
-
                     </div>
+                    <p class="text-gray-500 mt-2 truncate">{{tool.desc}}</p>
+
+                    <button :disabled="tool.status=='禁用'" @click="window.open(`/<$ ctx.app.config.appId $>/page${tool.url}`)" class="btn btn-md mt-3 btn-sm btn-neutral btn-block">
+                        进入
+                    </button>
+
                 </div>
             </div>
-        </main>
-    <v-app>
+        </div>
+    </main>
 </script>
 
 <div id="app">
@@ -74,7 +62,7 @@
         data: () => ({
             category: '所有',
             toolsList: [],
-            toolsCate: [],
+            toolsCate: [{ title: '所有' }],
 
             searchInput: null,
         }),
@@ -83,9 +71,10 @@
                 if (!this.searchInput) return this.toolsList
                 return this.toolsList.filter(item => item.title.includes(this.searchInput))
             },
-          
+
             toolsCateFilter() {
-                return this.toolsCate
+                if (this.category === '所有') return this.toolsCate
+                return this.toolsCate.filter(item => item.title === this.category)
             }
         },
         async created() {

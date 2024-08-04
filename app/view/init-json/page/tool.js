@@ -1,5 +1,5 @@
 const content = {
-  pageType: "jh-page", pageId: "tool", pageName: "工具管理", 
+  pageType: "jh-page", pageId: "admin/tool", pageName: "工具管理",
   resourceList: [
     {
       actionId: "selectItemList",
@@ -43,21 +43,21 @@ const content = {
     }
   ], // { actionId: '', resourceType: '', resourceData: {}, resourceHook: {}, desc: '' }
   headContent: [
-    { tag: 'jh-page-title', value: "tool", attrs: { cols: 12, sm: 6, md:4 }, helpBtn: true, slot: [] },
+    { tag: 'jh-page-title', value: "tool", attrs: { cols: 12, sm: 6, md: 4 }, helpBtn: true, slot: [] },
     { tag: 'v-spacer' },
-    { 
-      tag: 'jh-search', 
-      attrs: { cols: 12, sm: 6, md:8 },
+    {
+      tag: 'jh-search',
+      attrs: { cols: 12, sm: 6, md: 8 },
       value: [
-        { tag: "v-text-field", model: "serverSearchWhereLike.className", attrs: {prefix: '前缀'} },
-      ], 
+        { tag: "v-text-field", model: "serverSearchWhereLike.className", attrs: { prefix: '前缀' } },
+      ],
       searchBtn: true
     }
   ],
   pageContent: [
     {
       tag: 'jh-table',
-      attrs: {  },
+      attrs: {},
       colAttrs: { clos: 12 },
       cardAttrs: { class: 'rounded-lg elevation-0' },
       headActionList: [
@@ -68,7 +68,7 @@ const content = {
           tag: 'v-col',
           attrs: { cols: '12', sm: '6', md: '3', xs: 8, class: 'pa-0' },
           value: [
-            { tag: 'v-text-field', attrs: {prefix: '筛选', 'v-model': 'searchInput', class: 'jh-v-input', ':dense': true, ':filled': true, ':single-line': true} },
+            { tag: 'v-text-field', attrs: { prefix: '筛选', 'v-model': 'searchInput', class: 'jh-v-input', ':dense': true, ':filled': true, ':single-line': true } },
           ],
         }
       ],
@@ -79,6 +79,7 @@ const content = {
         { text: "工具描述", value: "desc", width: 80, sortable: true },
         { text: "工具链接", value: "url", width: 80, sortable: true },
         { text: "工具分类", value: "category", width: 80, sortable: true },
+        { text: "状态", value: "status", width: 80, sortable: true },
         { text: "操作", value: "operation", width: 80, sortable: true },
         { text: "操作者userId", value: "operationByUserId", width: 80, sortable: true },
         { text: "操作者用户名", value: "operationByUser", width: 80, sortable: true },
@@ -88,7 +89,11 @@ const content = {
         // width 表达式需要使用字符串包裹
       ],
       value: [
-        // vuetify table custom slot
+        `
+        <template v-slot:item.status="{ item }">
+          <v-switch true-value="启用" false-value="禁用" v-model="item.status" @change="doUpdateItem({id: item.id, data:{status: item.status}})"></v-switch>
+        </template>
+        `
       ],
       rowActionList: [
         { text: '编辑', icon: 'mdi-note-edit-outline', color: 'success', click: 'doUiAction("startUpdateItem", item)' }, // 简写支持 pc 和 移动端折叠
@@ -103,20 +108,20 @@ const content = {
       attrs: {},
       title: '新增',
       headSlot: [
-        { tag: 'v-spacer'}
+        { tag: 'v-spacer' }
       ],
       contentList: [
-        { 
-          label: "新增", 
-          type: "form", 
+        {
+          label: "新增",
+          type: "form",
           formItemList: [
-            { label: "工具名称", model: "title", tag: "v-text-field", rules: "validationRules.requireRules",   },
-            { label: "工具图标", model: "logo", tag: "v-text-field", rules: "validationRules.requireRules",   },
-            { label: "工具描述", model: "desc", tag: "v-text-field", rules: "validationRules.requireRules",   },
-            { label: "工具链接", model: "url", tag: "v-text-field", rules: "validationRules.requireRules",   },
-            { label: "工具分类", model: "category", tag: "v-text-field", rules: "validationRules.requireRules",   },
-        
-          ], 
+            { label: "工具名称", model: "title", tag: "v-text-field", rules: "validationRules.requireRules", },
+            { label: "工具图标", model: "logo", tag: "v-text-field", rules: "validationRules.requireRules", },
+            { label: "工具描述", model: "desc", tag: "v-text-field", rules: "validationRules.requireRules", },
+            { label: "工具链接", model: "url", tag: "v-text-field", rules: "validationRules.requireRules", },
+            { label: "工具分类", model: "category", tag: "v-text-field", rules: "validationRules.requireRules", },
+
+          ],
           action: [{
             tag: "v-btn",
             value: "新增",
@@ -136,20 +141,20 @@ const content = {
       attrs: {},
       title: '编辑',
       headSlot: [
-        { tag: 'v-spacer'}
+        { tag: 'v-spacer' }
       ],
       contentList: [
-        { 
-          label: "编辑", 
-          type: "form", 
+        {
+          label: "编辑",
+          type: "form",
           formItemList: [
-            { label: "工具名称", model: "title", tag: "v-text-field", rules: "validationRules.requireRules",   },
-            { label: "工具图标", model: "logo", tag: "v-text-field", rules: "validationRules.requireRules",   },
-            { label: "工具描述", model: "desc", tag: "v-text-field", rules: "validationRules.requireRules",   },
-            { label: "工具链接", model: "url", tag: "v-text-field", rules: "validationRules.requireRules",   },
-            { label: "工具分类", model: "category", tag: "v-text-field", rules: "validationRules.requireRules",   },
-        
-          ], 
+            { label: "工具名称", model: "title", tag: "v-text-field", rules: "validationRules.requireRules", },
+            { label: "工具图标", model: "logo", tag: "v-text-field", rules: "validationRules.requireRules", },
+            { label: "工具描述", model: "desc", tag: "v-text-field", rules: "validationRules.requireRules", },
+            { label: "工具链接", model: "url", tag: "v-text-field", rules: "validationRules.requireRules", },
+            { label: "工具分类", model: "category", tag: "v-text-field", rules: "validationRules.requireRules", },
+
+          ],
           action: [{
             tag: "v-btn",
             value: "编辑",
@@ -165,8 +170,8 @@ const content = {
     },
   ],
   includeList: [], // { type: < js | css | html | vueComponent >, path: ''}
-  common: { 
-    
+  common: {
+
     data: {
       constantObj: {},
       validationRules: {
@@ -175,8 +180,8 @@ const content = {
         ],
       },
       serverSearchWhereLike: { className: '' }, // 服务端like查询
-      serverSearchWhere: { }, // 服务端查询
-      serverSearchWhereIn: { }, // 服务端 in 查询
+      serverSearchWhere: {}, // 服务端查询
+      serverSearchWhereIn: {}, // 服务端 in 查询
       filterMap: {}, // 结果筛选条件
     },
     dataExpression: {
@@ -185,7 +190,7 @@ const content = {
     watch: {},
     computed: {
       tableDataComputed() {
-        if(this.filterMap) {
+        if (this.filterMap) {
           return this.tableData.filter(row => {
             for (const key in this.filterMap) {
               if (this.filterMap[key] && row[key] !== this.filterMap[key]) {
@@ -200,9 +205,36 @@ const content = {
       },
     },
     doUiAction: {}, // 额外uiAction { [key]: [action1, action2]}
-    methods: {}
+    methods: {
+      async doUpdateItem(uiActionData = {}) {
+        let { id, data } = uiActionData
+
+        if (!id) {
+          id = this.updateItemId
+        }
+        if (!data) {
+          data = this.updateActionData
+        }
+
+        await window.jhMask.show();
+        await window.vtoast.loading("修改数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'admin/tool',
+              actionId: 'updateItem',
+              actionData: data,
+              where: { id }
+            }
+          }
+        })
+        await window.jhMask.hide();
+        await window.vtoast.success("修改数据成功");
+      },
+
+    }
   },
-  
+
 };
 
 module.exports = content;

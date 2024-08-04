@@ -66,7 +66,10 @@
         >
 
           <!-- 表格插槽 -->
-          
+          <template v-slot:item.status="{ item }">
+          <v-switch true-value="启用" false-value="禁用" v-model="item.status" @change="doUpdateItem({id: item.id, data:{status: item.status}})"></v-switch>
+        </template>
+        
 
           <!-- 自定义渲染列 -->
           <!-- 表格操作按钮 -->
@@ -257,7 +260,7 @@
 
     <!-- 帮助页抽屉 >>>>>>>>>>>>> -->
     <v-navigation-drawer v-if="isHelpPageDrawerLoaded" v-model="isHelpPageDrawerShown" :permanent="isHelpPageDrawerShown" fixed temporary right width="80%" class="elevation-24">
-      <iframe style="border: 0" :src="`/${appInfo.appId}/pageDoc#tool.md`" width="100%" height="100%"></iframe>
+      <iframe style="border: 0" :src="`/${appInfo.appId}/pageDoc#admin/tool.md`" width="100%" height="100%"></iframe>
       <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isHelpPageDrawerShown = false">
           <v-icon>mdi-close</v-icon>
       </v-btn>
@@ -297,6 +300,7 @@ new Vue({
       { text: "工具描述", value: "desc", width: 80, sortable: true },
       { text: "工具链接", value: "url", width: 80, sortable: true },
       { text: "工具分类", value: "category", width: 80, sortable: true },
+      { text: "状态", value: "status", width: 80, sortable: true },
       { text: "操作", value: "operation", width: 80, sortable: true },
       { text: "操作者userId", value: "operationByUserId", width: 80, sortable: true },
       { text: "操作者用户名", value: "operationByUser", width: 80, sortable: true },
@@ -368,7 +372,7 @@ new Vue({
       }
     },
     tableDataComputed() {
-      if(this.filterMap) {
+      if (this.filterMap) {
         return this.tableData.filter(row => {
           for (const key in this.filterMap) {
             if (this.filterMap[key] && row[key] !== this.filterMap[key]) {
@@ -462,7 +466,7 @@ new Vue({
       const rows = (await window.jianghuAxios({
         data: {
           appData: {
-            pageId: 'tool',
+            pageId: 'admin/tool',
             actionId: 'selectItemList',
             actionData: {},
             where,
@@ -518,7 +522,7 @@ new Vue({
       await window.jianghuAxios({
         data: {
           appData: {
-            pageId: 'tool',
+            pageId: 'admin/tool',
             actionId: 'insertItem',
             actionData: this.createActionData
           }
@@ -572,7 +576,7 @@ new Vue({
       await window.jianghuAxios({
         data: {
           appData: {
-            pageId: 'tool',
+            pageId: 'admin/tool',
             actionId: 'updateItem',
             actionData: this.updateActionData,
             where: {id: this.updateItemId}
@@ -611,7 +615,7 @@ new Vue({
       await window.jianghuAxios({
         data: {
           appData: {
-            pageId: 'tool',
+            pageId: 'admin/tool',
             actionId: 'deleteItem',
             actionData: {},
             where: {id: this.deleteItemId}
@@ -628,6 +632,31 @@ new Vue({
 
     // ---------- 抽屉列表 uiAction >>>>>>>>>>>> --------
     // ---------- Custom uiAction >>>>>>>>>>>> --------
+    async doUpdateItem(uiActionData = {}) {
+      let { id, data } = uiActionData
+  
+      if (!id) {
+        id = this.updateItemId
+      }
+      if (!data) {
+        data = this.updateActionData
+      }
+  
+      await window.jhMask.show();
+      await window.vtoast.loading("修改数据");
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'admin/tool',
+            actionId: 'updateItem',
+            actionData: data,
+            where: { id }
+          }
+        }
+      })
+      await window.jhMask.hide();
+      await window.vtoast.success("修改数据成功");
+    },
     // ---------- <<<<<<<<<<< Custom uiAction ---------
 
   }

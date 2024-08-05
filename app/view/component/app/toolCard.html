@@ -22,7 +22,7 @@
             toolDetail: {}
         }),
 
-        created() {
+        mounted() {
             const urlParams = new URLSearchParams(window.location.search);
             this.url = urlParams.get('url')
             this.getToolDetail()
@@ -32,7 +32,7 @@
                 const rows = (await window.jianghuAxios({
                     data: {
                         appData: {
-                            pageId: 'toolDetail',
+                            pageId: 'allPage',
                             actionId: 'getToolDetail',
                             whereLike: {
                                 url: window.appInfo.pageId

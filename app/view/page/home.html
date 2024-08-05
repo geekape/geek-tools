@@ -61,8 +61,7 @@
         template: '#app-template',
         data: () => ({
             category: '所有',
-            toolsList: [],
-            toolsCate: [{ title: '所有' }],
+            toolsList: JSON.parse(String.raw`<$ toolData | dump | safe $>`),
 
             searchInput: null,
         }),
@@ -71,35 +70,25 @@
                 if (!this.searchInput) return this.toolsList
                 return this.toolsList.filter(item => item.title.includes(this.searchInput))
             },
+            toolsCate() {
+                const toolsCate = _.groupBy(this.toolsList, 'category')
 
+                return [{ title: '所有' }, ...Object.keys(toolsCate).map(groupName => ({
+                    title: groupName,
+                    list: toolsCate[groupName]
+                }))]
+            },
             toolsCateFilter() {
-                if (this.category === '所有') return this.toolsCate
+                if (this.category == '所有') return this.toolsCate;
                 return this.toolsCate.filter(item => item.title === this.category)
             }
         },
         async created() {
-            this.getToolList()
+            console.log(this.toolsList, this.toolsCate);
+
         },
         methods: {
-            async getToolList() {
-                const rows = (await window.jianghuAxios({
-                    data: {
-                        appData: {
-                            pageId: 'home',
-                            actionId: 'getToolList',
-                            actionData: {},
-                        }
-                    }
-                })).data.appData.resultData.rows;
-                this.toolsList = rows;
 
-                const toolsCate = _.groupBy(rows, 'category')
-                this.toolsCate = [...this.toolsCate, ...Object.keys(toolsCate).map(groupName => ({
-                    title: groupName,
-                    list: toolsCate[groupName]
-                }))]
-
-            }
         }
     })
 </script>

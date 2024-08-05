@@ -6,10 +6,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>
+    {% if pageDetail %}
+    <$ pageDetail.pageName $> - <$ ctx.app.config.appTitle $>
+    {% else %}
     <$ ctx.app.config.appTitle $>
+    {% endif %}
   </title>
   <meta charset="utf-8" name="viewport"
     content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  
   <!-- <<<<<<<<<<<<< 设置页面默认参数 -->
 
   <!-- 加载第三方库CSS >>>>>>>>>>>>> -->
@@ -27,7 +32,16 @@
   <script src="/<$ ctx.app.config.appId $>/public/js/tailwindcss.js"></script>
   <script src="/<$ ctx.app.config.appId $>/public/js/theme-change.js"></script>
 
-
+  <style>
+    body {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+    #app {
+      flex: 1;
+    }
+  </style>
   {% block htmlHead %}
   {% endblock %}
 
@@ -564,7 +578,7 @@
     </div>
   </footer>
 
-  {% include 'component/app/toolCard.html' %}
+  {% include 'component/tool/toolCard.html' %}
 
   <!-- 加载工具脚本 >>>>>>>>>>>>> -->
   {% include 'utility/jianghuJs/prepareAppInfoV4.html' %}
@@ -577,7 +591,6 @@
   {% include 'common/jianghuJs/bugfixDrawerOutsideClick.html' %}
   {% include 'common/jianghuJs/fixedTableColV4.html' %}
   <!-- <<<<<<<<<<<<< 加载工具脚本 -->
-
 
 
   {% block vueScript %}

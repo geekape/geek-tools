@@ -1,7 +1,7 @@
 /*
  * @Author: geekape
  * @Date: 2024-08-05 11:08:53
- * @LastEditTime: 2024-08-05 19:09:31
+ * @LastEditTime: 2024-08-05 19:27:28
  * @Description: 
  */
 'use strict';
@@ -13,13 +13,9 @@ const actionDataScheme = Object.freeze({
   
 });
 
-class ToolService extends Service {
-    async getToolList() {
-        const { knex, jianghuKnex } = this.app;
-        const result = await jianghuKnex('tool').select();
-        return result;
-    }
-    async getToolDetail() {
+class PageService extends Service {
+  
+    async getPageDetail() {
         const { knex, jianghuKnex } = this.app;
       
         const pathArr = this.ctx.path.split('/')
@@ -30,9 +26,9 @@ class ToolService extends Service {
             pageId = pathArr.pop(); 
         }
 
-        const result = await knex('tool').where('url', 'like', `%${pageId}%`).first();
+        const result = await knex('_page').where('pageId', 'like', `%${pageId}%`).first();
         return result || {};
     }
 }
 
-module.exports = ToolService;
+module.exports = PageService;

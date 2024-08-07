@@ -9,6 +9,7 @@ specifiers:
   egg: ^2.15.1
   egg-bin: ^4.11.0
   egg-mock: ^3.21.0
+  egg-rewrite: ^0.0.1
   egg-scripts: ^2.11.0
   eslint: ^7.32.0
   eslint-config-egg: ^7.1.0
@@ -18,6 +19,7 @@ dependencies:
   '@jianghujs/jianghu': 5.1.0
   axios: 1.6.8
   egg: 2.37.0
+  egg-rewrite: 0.0.1
   egg-scripts: 2.17.0
 
 devDependencies:
@@ -3051,6 +3053,10 @@ packages:
     resolution: {integrity: sha512-pHdz/q8v843jSEpLksXmJEZ8dzDNiCfTgQtgoSTT9bsLa1QFCzsdeZLag+CKTaCHsDhy3id/WjjTRF94X91y6w==}
     dependencies:
       path-to-regexp: 1.8.0
+    dev: false
+
+  /egg-rewrite/0.0.1:
+    resolution: {integrity: sha512-cc2MB8snqgiQjXFP0eWxjntwjZYV6Um15QyzOkuB12eLkaY5th2lK0jThM/O/2qv3hK0rhDBCDpsHvkz+LSBKg==}
     dev: false
 
   /egg-schedule/3.7.0:

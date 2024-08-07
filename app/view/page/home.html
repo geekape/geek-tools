@@ -9,7 +9,7 @@
 {% block vueTemplate %}
 
 <script type="text/html" id="app-template">
-    <main class="container mx-auto mt-6" id="app">
+    <main class="container mx-auto mt-6">
         <div class="flex items-center justify-between p-4 rounded-lg shadow-md">
             <div class="flex flex-1 space-x-4">
                 <button @click="category=item.title" v-for="item in toolsCate" :class="`btn btn-outline btn-sm ${item.title==category && 'btn-active'}`">{{item.title}}</button>
@@ -50,6 +50,8 @@
             </div>
         </div>
     </main>
+
+
 </script>
 
 <div id="app">

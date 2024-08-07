@@ -17,7 +17,7 @@ module.exports = appInfo => {
 
   return {
     appId,
-    appTitle: '极客猿工具箱',
+    appTitle: '极客猿在线工具箱',
     appLogo: `${appId}/public/img/logo.png`,
     appType: 'single',
     appDirectoryLink: '/',

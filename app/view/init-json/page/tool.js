@@ -42,6 +42,9 @@ const content = {
       }
     }
   ], // { actionId: '', resourceType: '', resourceData: {}, resourceHook: {}, desc: '' }
+  includeList: [
+    {type: 'include', path: 'component/selectFileDialog.html', includeType: 'auto'},
+  ],
   headContent: [
     { tag: 'jh-page-title', value: "tool", attrs: { cols: 12, sm: 6, md: 4 }, helpBtn: true, slot: [] },
     { tag: 'v-spacer' },
@@ -49,7 +52,6 @@ const content = {
       tag: 'jh-search',
       attrs: { cols: 12, sm: 6, md: 8 },
       value: [
-        { tag: "v-text-field", model: "serverSearchWhereLike.className", attrs: { prefix: '前缀' } },
       ],
       searchBtn: true
     }
@@ -90,23 +92,46 @@ const content = {
       ],
       value: [
         `
+        <template v-slot:item.logo="{ item }">
+        <v-avatar
+            class="profile"
+            color="grey"
+            size="35"
+             @click="startUploadLogo(item)"
+            tile
+          >
+            <v-img :src="'/<$ ctx.app.config.appId $>/upload/' + item.logo"></v-img>
+          </v-avatar>
+
+        </template>
+
         <template v-slot:item.status="{ item }">
           <v-switch true-value="启用" false-value="禁用" v-model="item.status" @change="doUpdateItem({id: item.id, data:{status: item.status}})"></v-switch>
         </template>
-        `
+        <template v-slot:item.title="{ item }">
+          <v-text-field v-model="item.title" @blur="doUpdateItem({id: item.id, data: {title: item.title}})" class="jh-v-input" filled single-line dense></v-text-field>
+        </template>
+        <template v-slot:item.desc="{ item }">
+          <v-text-field v-model="item.desc" @blur="doUpdateItem({id: item.id, data: {desc: item.desc}})" class="jh-v-input" filled single-line dense></v-text-field>
+        </template>
+        <template v-slot:item.category="{ item }">
+          <v-text-field v-model="item.category" @blur="doUpdateItem({id: item.id, data: {category: item.category}})" class="jh-v-input" filled single-line dense></v-text-field>
+        </template>
+        `,
+       
       ],
       rowActionList: [
         { text: '编辑', icon: 'mdi-note-edit-outline', color: 'success', click: 'doUiAction("startUpdateItem", item)' }, // 简写支持 pc 和 移动端折叠
         { text: '删除', icon: 'mdi-trash-can-outline', color: 'error', click: 'doUiAction("deleteItem", item)' } // 简写支持 pc 和 移动端折叠
       ],
-    }
+    },
   ],
   actionContent: [
     {
       tag: 'jh-create-drawer',
       key: "create",
       attrs: {},
-      title: '新增',
+      desc: '新增',
       headSlot: [
         { tag: 'v-spacer' }
       ],
@@ -231,7 +256,21 @@ const content = {
         await window.jhMask.hide();
         await window.vtoast.success("修改数据成功");
       },
-
+      startUploadLogo(item) {
+        this.$refs.selectFileDialogRef.doUiAction('open')
+        this.currentItem = item
+      },
+      uploadLogo(event) {
+        const {id} = this.currentItem
+        const logo = window.appInfo.upload + event.downloadPath
+        this.currentItem.logo = logo
+        this.updateNav({
+          id,
+          data: {
+            logo
+          }
+        })
+      }
     }
   },
 

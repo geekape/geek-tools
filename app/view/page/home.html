@@ -32,17 +32,18 @@
         </div>
         <div class="mt-6" v-if="item.list" v-for="item in toolsCateFilter">
             <h2 class="text-lg font-semibold"># {{item.title}}</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4  gap-6 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
                 <div class="card bg-base-100 p-4 shadow-xl" v-for="tool in item.list">
+                    <span v-if="tool.url.includes('http')" class="badge badge-ghost badge-outline absolute right-3 top-0">外链</span>
                     <div class="flex">
-                        <img :src="`/<$ ctx.app.config.appId $>/upload/${tool.logo}`" alt="Base64 Image" class="h-16 object-cover rounded-md">
+                        <img :src="`${tool.url.includes('http') ? tool.logo : '/<$ ctx.app.config.appId $>/upload/' + tool.logo}`" alt="Base64 Image" class="h-16 object-cover rounded-md">
                         <div class="ml-3 flex-1">
                             <h3 class="mt-4 font-semibold">{{tool.title}}</h3>
                         </div>
                     </div>
                     <p class="text-gray-500 mt-2 truncate">{{tool.desc}}</p>
 
-                    <button :disabled="tool.status=='禁用'" @click="window.open(`/<$ ctx.app.config.appId $>/page${tool.url}`)" class="btn btn-md mt-3 btn-sm btn-neutral btn-block">
+                    <button :disabled="tool.status=='禁用'" @click="jump(tool)" class="btn btn-md mt-3 btn-sm btn-neutral btn-block">
                         进入
                     </button>
 
@@ -96,7 +97,13 @@
 
         },
         methods: {
-
+            jump(item) {
+                if (item.url.includes('http')) {
+                    window.open(item.url)
+                } else {
+                    window.open(`/<$ ctx.app.config.appId $>/page${tool.url}`)
+                }
+            }
         }
     })
 </script>

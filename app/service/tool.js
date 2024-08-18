@@ -16,7 +16,7 @@ const actionDataScheme = Object.freeze({
 class ToolService extends Service {
     async getToolList() {
         const { knex, jianghuKnex } = this.app;
-        const result = await jianghuKnex('tool').select();
+        const result = await jianghuKnex('tool').where({status: '启用'}).select();
         return result;
     }
     async getToolDetail() {

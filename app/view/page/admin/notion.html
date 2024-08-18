@@ -12,7 +12,7 @@
     <div class="jh-page-second-bar px-3 px-sm-8">
       <v-row class="align-center" no-gutters>
         <v-col cols="12" xs="12" sm="12" md="4" xl="3" :cols="12" :sm="6" :md="4" >
-          <div class="py-4 text-body-1 font-weight-bold align-center d-flex align-center">tool
+          <div class="py-4 text-body-1 font-weight-bold align-center d-flex align-center">notion
             <!-- 帮助页按钮 -->
             <v-icon size="15" class="black--text ml-1" @click="isHelpPageDrawerShown = true">mdi-help-circle</v-icon>
           </div>
@@ -22,6 +22,9 @@
         <!-- 服务端搜索 -->
         <v-col cols="12" xs="12" sm="12" md="8" xl="9" class="pl-md-2 mb-2 mb-md-0" :cols="12" :sm="6" :md="8" >
           <v-row class="jh-backend-form-container justify-end py-md-3" no-gutters>
+            <v-col cols="12" sm="4" md="3" xl="2" class="pl-md-2 " >
+              <v-text-field prefix="前缀" class="jh-v-input" dense single-line filled v-model="serverSearchWhereLike.className"></v-text-field>
+            </v-col>
             <div class="jh-backend-search-btn ml-2">
               <v-btn class="elevation-0 float-right mt-2 mt-md-0" color="success" small @click="doUiAction('getTableData')">
                 查询
@@ -39,8 +42,11 @@
         <!-- 表格顶部栏 -->
         <v-card  class="rounded-lg elevation-0">
         <v-row class="ma-0 pb-3 pa-0 px-3 px-md-0" align="center">
-          <v-btn color="success" class="mr-2" @click="doUiAction('startCreateItem')" small>
-            新增
+          <v-btn color="success" class="mr-2" @click="doUiAction('syncNotionData')" small>
+            同步notion数据
+          </v-btn>
+          <v-btn color="success" class="mr-2" @click="doUiAction('syncNotion')" small>
+            同步到tool
           </v-btn>
           <v-spacer ></v-spacer>
           <v-col cols="12" sm="6" md="3" :xs="8" class="pa-0">
@@ -59,35 +65,20 @@
           checkbox-color="success"
           :class="{'zebraLine': true }"
           fixed-header
+          :show-select="true"
+          v-model="selectedItems"
           class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4"
         >
 
           <!-- 表格插槽 -->
-          <template v-slot:item.logo="{ item }">
-        <v-avatar
-            class="profile"
-            color="grey"
-            size="35"
-             @click="startUploadLogo(item)"
-            tile
-          >
-            <v-img :src="'/<$ ctx.app.config.appId $>/upload/' + item.logo"></v-img>
-          </v-avatar>
-
-        </template>
-
-        <template v-slot:item.status="{ item }">
-          <v-switch true-value="启用" false-value="禁用" v-model="item.status" @change="doUpdateItem({id: item.id, data:{status: item.status}})"></v-switch>
-        </template>
-        <template v-slot:item.title="{ item }">
-          <v-text-field v-model="item.title" @blur="doUpdateItem({id: item.id, data: {title: item.title}})" class="jh-v-input" filled single-line dense></v-text-field>
-        </template>
-        <template v-slot:item.desc="{ item }">
-          <v-text-field v-model="item.desc" @blur="doUpdateItem({id: item.id, data: {desc: item.desc}})" class="jh-v-input" filled single-line dense></v-text-field>
-        </template>
-        <template v-slot:item.category="{ item }">
-          <v-text-field v-model="item.category" @blur="doUpdateItem({id: item.id, data: {category: item.category}})" class="jh-v-input" filled single-line dense></v-text-field>
-        </template>
+          <template v-slot:item.title="{ item }">
+            <v-avatar
+              size="30"
+            >
+            <img :src="item.logo" />
+            </v-avatar>
+            {{item.title}}
+          </template>
         
 
           <!-- 自定义渲染列 -->
@@ -141,33 +132,76 @@
     </v-row>
     </div>
     <!-- <<<<<<<<<<<<< 页面内容 -->
-    <!--  >>>>>>>>>>>>> -->
+    <!-- 新增 >>>>>>>>>>>>> -->
     <v-navigation-drawer v-if="isCreateDrawerShown" v-model="isCreateDrawerShown" :permanent="isCreateDrawerShown" fixed temporary right width="90%" class="elevation-24" >
       <v-form ref="createForm" lazy-validation>
         
+        <!-- 抽屉标题 -->
+        <v-row class="jh-drawer-header px-4" no-gutters align="center">
+          <span class="text-h7 font-weight-bold py-4">新增</span>
+          <v-spacer ></v-spacer>
+          <div class="jh-drawer-action-btn-group">
+            <v-btn class="elevation-0 grey lighten-4" @click="closeCreateDrawerCheck" small>取消</v-btn>
+            <!-- 抽屉操作按钮 -->
+            <template v-if="true">
+              <v-btn color="success" small @click="doUiAction('createItem')">
+              新增
+            </v-btn>
+            </template>
+          </div>
+        </v-row>
+        <v-divider class="jh-divider"></v-divider>
         <!-- 抽屉内容 -->
 
             <!-- 抽屉内容form -->
             <v-row class="mt-0 px-4 pb-4">
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具名称</span>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>id</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.id" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>名称</span>
                 <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.title" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具图标</span>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>logo</span>
                 <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.logo" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具描述</span>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>分类</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.category" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>标签</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.tag" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>描述</span>
                 <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.desc" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具链接</span>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>链接</span>
                 <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.url" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具分类</span>
-                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.category" :rules="validationRules.requireRules"></v-text-field>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>创建时间</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.createAt" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>操作</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.operation" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>操作者userId</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.operationByUserId" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>操作者用户名</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.operationByUser" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>操作时间</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="createItem.operationAt" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
             </v-row>
 
@@ -178,7 +212,7 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-navigation-drawer>
-    <!-- <<<<<<<<<<<<<  -->
+    <!-- <<<<<<<<<<<<< 新增 -->
     <!-- 编辑 >>>>>>>>>>>>> -->
     <v-navigation-drawer v-if="isUpdateDrawerShown" v-model="isUpdateDrawerShown" :permanent="isUpdateDrawerShown" fixed temporary right width="90%" class="elevation-24" >
       <v-form ref="updateForm" lazy-validation>
@@ -220,24 +254,52 @@
             <!-- 抽屉内容form -->
             <v-row class="mt-0 px-4 pb-4">
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具名称</span>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>id</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.id" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>名称</span>
                 <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.title" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具图标</span>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>logo</span>
                 <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.logo" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具描述</span>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>分类</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.category" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>标签</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.tag" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>描述</span>
                 <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.desc" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具链接</span>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>链接</span>
                 <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.url" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="3" >
-                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>工具分类</span>
-                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.category" :rules="validationRules.requireRules"></v-text-field>
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>创建时间</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.createAt" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>操作</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.operation" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>操作者userId</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.operationByUserId" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>操作者用户名</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.operationByUser" :rules="validationRules.requireRules"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="12" md="3" >
+                <span class="jh-input-label"><span class="red--text text--accent-2 ml-1">* </span>操作时间</span>
+                <v-text-field class="jh-v-input" dense single-line filled v-model="updateItem.operationAt" :rules="validationRules.requireRules"></v-text-field>
               </v-col>
             </v-row>
 
@@ -248,7 +310,7 @@
           >
 
             <!-- 抽屉内容form -->
-            <table-record-history table="tool" pageId="tool" :id="updateItem.id"/>
+            <table-record-history table="notion" pageId="notion" :id="updateItem.id"/>
           </v-tab-item>
         </v-tabs-items>
       </v-form>
@@ -264,7 +326,7 @@
 
     <!-- 帮助页抽屉 >>>>>>>>>>>>> -->
     <v-navigation-drawer v-if="isHelpPageDrawerLoaded" v-model="isHelpPageDrawerShown" :permanent="isHelpPageDrawerShown" fixed temporary right width="80%" class="elevation-24">
-      <iframe style="border: 0" :src="`/${appInfo.appId}/pageDoc#admin/tool.md`" width="100%" height="100%"></iframe>
+      <iframe style="border: 0" :src="`/${appInfo.appId}/pageDoc#admin/notion.md`" width="100%" height="100%"></iframe>
       <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isHelpPageDrawerShown = false">
           <v-icon>mdi-close</v-icon>
       </v-btn>
@@ -299,12 +361,13 @@ new Vue({
     // ================================ 表格相关 ================================
     headers: [
       { text: "id", value: "id", width: 80, sortable: true, class: "fixed", cellClass: "fixed" },
-      { text: "工具名称", value: "title", width: 80, sortable: true },
-      { text: "工具图标", value: "logo", width: 80, sortable: true },
-      { text: "工具描述", value: "desc", width: 80, sortable: true },
-      { text: "工具链接", value: "url", width: 80, sortable: true },
-      { text: "工具分类", value: "category", width: 80, sortable: true },
-      { text: "状态", value: "status", width: 80, sortable: true },
+      { text: "名称", value: "title", width: 80, sortable: true },
+      { text: "logo", value: "logo", width: 80, sortable: true },
+      { text: "分类", value: "category", width: 80, sortable: true },
+      { text: "标签", value: "tag", width: 80, sortable: true },
+      { text: "描述", value: "desc", width: 80, sortable: true },
+      { text: "链接", value: "url", width: 80, sortable: true },
+      { text: "创建时间", value: "createAt", width: 80, sortable: true },
       { text: "操作", value: "operation", width: 80, sortable: true },
       { text: "操作者userId", value: "operationByUserId", width: 80, sortable: true },
       { text: "操作者用户名", value: "operationByUser", width: 80, sortable: true },
@@ -345,6 +408,7 @@ new Vue({
     serverSearchWhere: {},
     serverSearchWhereIn: {},
     filterMap: {},
+    selectedItems: [],
     isMobile: window.innerWidth < 500,
 
     // ================================ 其他抽屉列表 ================================
@@ -376,19 +440,19 @@ new Vue({
       }
     },
     tableDataComputed() {
-          if (this.filterMap) {
-            return this.tableData.filter(row => {
-              for (const key in this.filterMap) {
-                if (this.filterMap[key] && row[key] !== this.filterMap[key]) {
-                  return false;
-                }
-              }
-              return true;
-            });
-          } else {
-            return this.tableData;
+      if(this.filterMap) {
+        return this.tableData.filter(row => {
+          for (const key in this.filterMap) {
+            if (this.filterMap[key] && row[key] !== this.filterMap[key]) {
+              return false;
+            }
           }
-        },
+          return true;
+        });
+      } else {
+        return this.tableData;
+      }
+    },
   },
   async created() {
     this.doUiAction('getTableData');
@@ -431,6 +495,12 @@ new Vue({
             await this.doDeleteItem(uiActionData);
             await this.getTableData(uiActionData);
             break;
+          case 'syncNotionData':
+            await this.syncNotionData(uiActionData);
+            break;
+          case 'syncNotion':
+            await this.syncNotion(uiActionData);
+            break;
           default:
             console.error("[doUiAction] uiActionId not find", {uiActionId});
             break;
@@ -470,7 +540,7 @@ new Vue({
       const rows = (await window.jianghuAxios({
         data: {
           appData: {
-            pageId: 'admin/tool',
+            pageId: 'admin/notion',
             actionId: 'selectItemList',
             actionData: {},
             where,
@@ -513,11 +583,18 @@ new Vue({
     prepareDoCreateItem() {
       const {id, ...data} = this.createItem;
       this.createActionData = {
+        id: data.id,
         title: data.title,
         logo: data.logo,
+        category: data.category,
+        tag: data.tag,
         desc: data.desc,
         url: data.url,
-        category: data.category,
+        createAt: data.createAt,
+        operation: data.operation,
+        operationByUserId: data.operationByUserId,
+        operationByUser: data.operationByUser,
+        operationAt: data.operationAt,
       };
     },
     async doCreateItem() {
@@ -526,7 +603,7 @@ new Vue({
       await window.jianghuAxios({
         data: {
           appData: {
-            pageId: 'admin/tool',
+            pageId: 'admin/notion',
             actionId: 'insertItem',
             actionData: this.createActionData
           }
@@ -567,11 +644,18 @@ new Vue({
       const {id, ...data} = this.updateItem;
       this.updateItemId = id;
       this.updateActionData = {
+        id: data.id,
         title: data.title,
         logo: data.logo,
+        category: data.category,
+        tag: data.tag,
         desc: data.desc,
         url: data.url,
-        category: data.category,
+        createAt: data.createAt,
+        operation: data.operation,
+        operationByUserId: data.operationByUserId,
+        operationByUser: data.operationByUser,
+        operationAt: data.operationAt,
       };
     },
     async doUpdateItem() {
@@ -580,7 +664,7 @@ new Vue({
       await window.jianghuAxios({
         data: {
           appData: {
-            pageId: 'admin/tool',
+            pageId: 'admin/notion',
             actionId: 'updateItem',
             actionData: this.updateActionData,
             where: {id: this.updateItemId}
@@ -619,7 +703,7 @@ new Vue({
       await window.jianghuAxios({
         data: {
           appData: {
-            pageId: 'admin/tool',
+            pageId: 'admin/notion',
             actionId: 'deleteItem',
             actionData: {},
             where: {id: this.deleteItemId}
@@ -636,46 +720,36 @@ new Vue({
 
     // ---------- 抽屉列表 uiAction >>>>>>>>>>>> --------
     // ---------- Custom uiAction >>>>>>>>>>>> --------
-    async doUpdateItem(uiActionData = {}) {
-          let { id, data } = uiActionData
-  
-          if (!id) {
-            id = this.updateItemId
+    async syncNotionData() {
+      window.vtoast.loading('同步中...')
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'admin/notion',
+            actionId: 'syncNotionData',
+            actionData: {},
+            orderBy: [{column: 'operationAt', order: 'desc'}]
           }
-          if (!data) {
-            data = this.updateActionData
+        }
+      })
+      window.vtoast.success('同步成功')
+    },
+    async syncNotion() {
+      window.vtoast.loading('同步中...')
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'admin/notion',
+            actionId: 'syncNotion',
+            actionData: {
+              idList: this.selectedItems.map(item => item.id)
+            },
+            orderBy: [{column: 'operationAt', order: 'desc'}]
           }
-  
-          await window.jhMask.show();
-          await window.vtoast.loading("修改数据");
-          await window.jianghuAxios({
-            data: {
-              appData: {
-                pageId: 'admin/tool',
-                actionId: 'updateItem',
-                actionData: data,
-                where: { id }
-              }
-            }
-          })
-          await window.jhMask.hide();
-          await window.vtoast.success("修改数据成功");
-        },
-    startUploadLogo(item) {
-          this.$refs.selectFileDialogRef.doUiAction('open')
-          this.currentItem = item
-        },
-    uploadLogo(event) {
-          const {id} = this.currentItem
-          const logo = window.appInfo.upload + event.downloadPath
-          this.currentItem.logo = logo
-          this.updateNav({
-            id,
-            data: {
-              logo
-            }
-          })
-        },
+        }
+      })
+      window.vtoast.success('同步成功')
+    },
     // ---------- <<<<<<<<<<< Custom uiAction ---------
 
   }

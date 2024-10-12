@@ -43,7 +43,7 @@ const content = {
     }
   ], // { actionId: '', resourceType: '', resourceData: {}, resourceHook: {}, desc: '' }
   includeList: [
-    {type: 'include', path: 'component/selectFileDialog.html', includeType: 'auto'},
+    {type: 'include', path: 'component/selectFileDialog.html', includeType: 'auto', attrs: {"@confirm": "doUiAction('uploadLogo', $event)" }},
   ],
   headContent: [
     { tag: 'jh-page-title', value: "tool", attrs: { cols: 12, sm: 6, md: 4 }, helpBtn: true, slot: [] },
@@ -100,7 +100,8 @@ const content = {
              @click="startUploadLogo(item)"
             tile
           >
-            <v-img :src="'/<$ ctx.app.config.appId $>/upload/' + item.logo"></v-img>
+            <v-img v-if="!item.logo?.includes('http')" :src="item.logo"></v-img>
+            <v-img v-else :src="item.logo"></v-img>
           </v-avatar>
 
         </template>
@@ -194,7 +195,6 @@ const content = {
       ]
     },
   ],
-  includeList: [], // { type: < js | css | html | vueComponent >, path: ''}
   common: {
 
     data: {
@@ -229,7 +229,9 @@ const content = {
         }
       },
     },
-    doUiAction: {}, // 额外uiAction { [key]: [action1, action2]}
+    doUiAction: {
+      uploadLogo: ['uploadLogo', 'getTableData']
+    }, // 额外uiAction { [key]: [action1, action2]}
     methods: {
       async doUpdateItem(uiActionData = {}) {
         let { id, data } = uiActionData
@@ -258,13 +260,14 @@ const content = {
       },
       startUploadLogo(item) {
         this.$refs.selectFileDialogRef.doUiAction('open')
+
         this.currentItem = item
       },
       uploadLogo(event) {
         const {id} = this.currentItem
         const logo = window.appInfo.upload + event.downloadPath
         this.currentItem.logo = logo
-        this.updateNav({
+        this.doUpdateItem({
           id,
           data: {
             logo

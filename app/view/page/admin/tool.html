@@ -11,7 +11,7 @@
     <!-- 头部内容 >>>>>>>>>>>>> -->
     <div class="jh-page-second-bar px-3 px-sm-8">
       <v-row class="align-center" no-gutters>
-        <v-col cols="12" xs="12" sm="12" md="4" xl="3" :cols="12" :sm="6" :md="4" >
+        <v-col cols="12" sm="12" md="4" xl="3" :cols="12" :sm="6" :md="4" >
           <div class="py-4 text-body-1 font-weight-bold align-center d-flex align-center">tool
             <!-- 帮助页按钮 -->
             <v-icon size="15" class="black--text ml-1" @click="isHelpPageDrawerShown = true">mdi-help-circle</v-icon>
@@ -23,7 +23,7 @@
         <v-col cols="12" xs="12" sm="12" md="8" xl="9" class="pl-md-2 mb-2 mb-md-0" :cols="12" :sm="6" :md="8" >
           <v-row class="jh-backend-form-container justify-end py-md-3" no-gutters>
             <div class="jh-backend-search-btn ml-2">
-              <v-btn class="elevation-0 float-right mt-2 mt-md-0" color="success" small @click="doUiAction('getTableData')">
+              <v-btn class="elevation-0 float-right mt-2 mt-md-0" color="success" small @click="tableOptions.page = 1; doUiAction('getTableData')">
                 查询
               </v-btn>
             </div>
@@ -31,39 +31,38 @@
       </v-row>
     </div>
     <!-- <<<<<<<<<<<<< 头部内容 -->
-
     <!-- 页面内容 >>>>>>>>>>>>> -->
     <div class="jh-page-body-container px-sm-8">
       <v-row class="pa-0 ma-0">
-      <v-col class="pa-0"  :clos="12">
-        <!-- 表格顶部栏 -->
-        <v-card  class="rounded-lg elevation-0">
-        <v-row class="ma-0 pb-3 pa-0 px-3 px-md-0" align="center">
-          <v-btn color="success" class="mr-2" @click="doUiAction('startCreateItem')" small>
+        <v-col class="pa-0"  :clos="12">
+          <!-- 表格顶部栏 -->
+          <v-card  class="rounded-lg elevation-0">
+            <v-row class="ma-0 pb-3 pa-0 px-3 px-md-0" align="center">
+              <v-btn color="success" class="mr-2" @click="doUiAction('startCreateItem')" small>
             新增
           </v-btn>
-          <v-spacer ></v-spacer>
-          <v-col cols="12" sm="6" md="3" :xs="8" class="pa-0">
+              <v-spacer ></v-spacer>
+              <v-col cols="12" sm="6" md="3" :xs="8" class="pa-0">
             <v-text-field prefix="筛选" v-model="searchInput" class="jh-v-input" dense filled single-line></v-text-field>
           </v-col>
-        </v-row>
-        <!-- 表格 -->
-        <v-data-table
-          :headers="headers"
-          :items="tableDataComputed"
-          :search="searchInput"
-          :footer-props="{ itemsPerPageOptions: [20, 50, 200, -1], itemsPerPageText: '每页', itemsPerPageAllText: '所有'}"
-          :items-per-page="-1"
-          mobile-breakpoint="0"
-          :loading="isTableLoading"
-          checkbox-color="success"
-          :class="{'zebraLine': true }"
-          fixed-header
-          class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4"
-        >
+            </v-row>
+            <!-- 表格 -->
+            <v-data-table
+              :headers="headers"
+              :items="tableDataComputed"
+              :search="searchInput"
+              :footer-props="{ itemsPerPageOptions: [20, 50, 200, -1], itemsPerPageText: '每页', itemsPerPageAllText: '所有'}"
+              :items-per-page="-1"
+              mobile-breakpoint="0"
+              :loading="isTableLoading"
+              checkbox-color="success"
+              :class="{'zebraLine': true }"
+              fixed-header
+              class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4"
+            >
 
-          <!-- 表格插槽 -->
-          <template v-slot:item.logo="{ item }">
+              <!-- 表格插槽 -->
+              <template v-slot:item.logo="{ item }">
         <v-avatar
             class="profile"
             color="grey"
@@ -71,7 +70,8 @@
              @click="startUploadLogo(item)"
             tile
           >
-            <v-img :src="'/<$ ctx.app.config.appId $>/upload/' + item.logo"></v-img>
+            <v-img v-if="!item.logo?.includes('http')" :src="item.logo"></v-img>
+            <v-img v-else :src="item.logo"></v-img>
           </v-avatar>
 
         </template>
@@ -90,55 +90,55 @@
         </template>
         
 
-          <!-- 自定义渲染列 -->
-          <!-- 表格操作按钮 -->
-          <template v-slot:item.action="{ item }">
-            <!-- pc端 -->
-            <template v-if="!isMobile">
-              <span role="button" class="success--text font-weight-medium font-size-2 mr-2" @click="doUiAction('startUpdateItem', item)" >
-                <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>编辑
-              </span>
-              <span role="button" class="error--text font-weight-medium font-size-2 mr-2" @click="doUiAction('deleteItem', item)" >
-                <v-icon size="16" class="error--text">mdi-trash-can-outline</v-icon>删除
-              </span>
-            </template>
-            <!-- 手机端 -->
-            <v-menu offset-y v-if="isMobile">
-              <template v-slot:activator="{ on, attrs }">
-                <span role="button" class="success--text font-weight-medium font-size-2"
-                  v-bind="attrs" v-on="on">
-                  <v-icon size="20" class="success--text">mdi-chevron-down</v-icon>操作
-                </span>
+              <!-- 自定义渲染列 -->
+              <!-- 表格操作按钮 -->
+              <template v-slot:item.action="{ item }">
+                <!-- pc端 -->
+                <template v-if="!isMobile">
+                  <span role="button" class="success--text font-weight-medium font-size-2 mr-2" @click="doUiAction('startUpdateItem', item)" >
+                    <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>编辑
+                  </span>
+                  <span role="button" class="error--text font-weight-medium font-size-2 mr-2" @click="doUiAction('deleteItem', item)" >
+                    <v-icon size="16" class="error--text">mdi-trash-can-outline</v-icon>删除
+                  </span>
+                </template>
+                <!-- 手机端 -->
+                <v-menu offset-y v-if="isMobile">
+                  <template v-slot:activator="{ on, attrs }">
+                    <span role="button" class="success--text font-weight-medium font-size-2"
+                      v-bind="attrs" v-on="on">
+                      <v-icon size="20" class="success--text">mdi-chevron-down</v-icon>操作
+                    </span>
+                  </template>
+                  <v-list dense>
+                    <v-list-item @click="doUiAction('startUpdateItem', item)" >
+                      <v-list-item-title>编辑</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item @click="doUiAction('deleteItem', item)" >
+                      <v-list-item-title>删除</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
               </template>
-              <v-list dense>
-                <v-list-item @click="doUiAction('startUpdateItem', item)" >
-                  <v-list-item-title>编辑</v-list-item-title>
-                </v-list-item>
-                <v-list-item @click="doUiAction('deleteItem', item)" >
-                  <v-list-item-title>删除</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
-          <!-- 没有数据 -->
-          <template v-slot:loading>
-            <div class="jh-no-data">数据加载中</div>
-          </template>
-          <template v-slot:no-data>
-            <div class="jh-no-data">暂无数据</div>
-          </template>
-          <template v-slot:no-results>
-            <div class="jh-no-data">暂无数据</div>
-          </template>
-          <!-- 表格分页 -->
-          <template v-slot:footer.page-text="pagination">
-            <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
-            <span class="ml-1">共{{pagination.itemsLength}}条</span>
-          </template>
-        </v-data-table>
-      </v-card>
-    </v-col>
-    </v-row>
+              <!-- 没有数据 -->
+              <template v-slot:loading>
+                <div class="jh-no-data">数据加载中</div>
+              </template>
+              <template v-slot:no-data>
+                <div class="jh-no-data">暂无数据</div>
+              </template>
+              <template v-slot:no-results>
+                <div class="jh-no-data">暂无数据</div>
+              </template>
+              <!-- 表格分页 -->
+              <template v-slot:footer.page-text="pagination">
+                <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
+                <span class="ml-1">共{{pagination.itemsLength}}条</span>
+              </template>
+            </v-data-table>
+          </v-card>
+        </v-col>
+      </v-row>
     </div>
     <!-- <<<<<<<<<<<<< 页面内容 -->
     <!--  >>>>>>>>>>>>> -->
@@ -248,7 +248,7 @@
           >
 
             <!-- 抽屉内容form -->
-            <table-record-history table="tool" pageId="tool" :id="updateItem.id"/>
+            <table-record-history table="tool" page-id="tool" :id="updateItem.id"/>
           </v-tab-item>
         </v-tabs-items>
       </v-form>
@@ -258,10 +258,8 @@
       </v-btn>
     </v-navigation-drawer>
     <!-- <<<<<<<<<<<<< 编辑 -->
-
     <!-- 组件列表 -->
-
-
+    <select-file-dialog ref="selectFileDialogRef" @confirm="doUiAction('uploadLogo', $event)"  />
     <!-- 帮助页抽屉 >>>>>>>>>>>>> -->
     <v-navigation-drawer v-if="isHelpPageDrawerLoaded" v-model="isHelpPageDrawerShown" :permanent="isHelpPageDrawerShown" fixed temporary right width="80%" class="elevation-24">
       <iframe style="border: 0" :src="`/${appInfo.appId}/pageDoc#admin/tool.md`" width="100%" height="100%"></iframe>
@@ -284,6 +282,7 @@
 {% block vueScript %}
 {% include 'common/jianghuJs/fixedTableHeightV4.html' %}
 {% include 'component/tableRecordHistory.html' %}
+{% include "component/selectFileDialog.html" %}
 
 <script type="module">
 
@@ -296,6 +295,7 @@ new Vue({
     isMobile: window.innerWidth < 500,
     isHelpPageDrawerShown: false,
     isHelpPageDrawerLoaded: false,
+
     // ================================ 表格相关 ================================
     headers: [
       { text: "id", value: "id", width: 80, sortable: true, class: "fixed", cellClass: "fixed" },
@@ -316,6 +316,8 @@ new Vue({
     searchInput: null,
     columnSettingGroup: {},
     selectedColumnGroup: null,
+    serverSearchWhere: {},
+    serverSearchWhereLike: {},
     // ================================ 新建抽屉 ================================
     isCreateDrawerShown: false,
     createItem: {},
@@ -431,6 +433,10 @@ new Vue({
             await this.doDeleteItem(uiActionData);
             await this.getTableData(uiActionData);
             break;
+          case 'uploadLogo':
+            await this.uploadLogo(uiActionData);
+            await this.getTableData(uiActionData);
+            break;
           default:
             console.error("[doUiAction] uiActionId not find", {uiActionId});
             break;
@@ -451,13 +457,21 @@ new Vue({
       for (const fieldKey in this.serverSearchWhere) {
         const fieldValue = this.serverSearchWhere[fieldKey];
         if(!!fieldValue && fieldValue != '全部') {
-          where[fieldKey] = fieldValue;
+          if (_.isString(fieldValue)) {
+            where[fieldKey] = fieldValue.trim();
+          } else {
+            where[fieldKey] = fieldValue;
+          }
         }
       }
       for (const fieldKey in this.serverSearchWhereLike) {
         const fieldValue = this.serverSearchWhereLike[fieldKey];
         if(!!fieldValue && fieldValue != '全部') {
-          whereLike[fieldKey] = fieldValue;
+          if (_.isString(fieldValue)) {
+            whereLike[fieldKey] = '%' + fieldValue.trim() + '%';
+          } else {
+            whereLike[fieldKey] = '%' + fieldValue + '%';
+          }
         }
       }
       for (const fieldKey in this.serverSearchWhereIn) {
@@ -466,8 +480,13 @@ new Vue({
           whereIn[fieldKey] = fieldValue;
         }
       }
+      let orderBy = [{column: 'operationAt', order: 'desc'}];
+      
+      let limit = null;
+      let offset = null;
 
-      const rows = (await window.jianghuAxios({
+
+      const {rows, count} = (await window.jianghuAxios({
         data: {
           appData: {
             pageId: 'admin/tool',
@@ -476,10 +495,11 @@ new Vue({
             where,
             whereLike,
             whereIn,
-            orderBy: [{column: 'operationAt', order: 'desc'}]
+            orderBy
           }
         }
-      })).data.appData.resultData.rows;
+      })).data.appData.resultData;
+      
       this.tableData = this.formatTableData(rows);
       this.isTableLoading = false;
     },
@@ -663,13 +683,14 @@ new Vue({
         },
     startUploadLogo(item) {
           this.$refs.selectFileDialogRef.doUiAction('open')
+  
           this.currentItem = item
         },
     uploadLogo(event) {
           const {id} = this.currentItem
           const logo = window.appInfo.upload + event.downloadPath
           this.currentItem.logo = logo
-          this.updateNav({
+          this.doUpdateItem({
             id,
             data: {
               logo

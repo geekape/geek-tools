@@ -9,11 +9,10 @@ const axios = require('axios');
 const actionDataScheme = Object.freeze({
 
 });
-const databaseId = '0bec5ef841a74c3eb3f7a2de090004e8'
-const notionToken = 'secret_ODyKW9TOlRVn7nEDchCBt9ChPQh59BogKyWfBOHW47T'
 class NotionService extends Service {
     async fetchAndSyncNotionData() {
         const { ctx } = this;
+        const { databaseId, notionToken } = this.ctx.app.config
         const notionApiUrl = `https://api.notion.com/v1/databases/${databaseId}/query`; // 替换为实际的Notion数据库API地址
 
         try {
@@ -92,6 +91,8 @@ class NotionService extends Service {
     }
     // 页面信息,icon
     async syncNotionPageInfo(pageId) {
+        const { databaseId, notionToken } = this.ctx.app.config
+
         const notionApiUrl = `https://api.notion.com/v1/pages/${pageId}`;
 
         try {
@@ -110,6 +111,8 @@ class NotionService extends Service {
     }
 
     async syncNotionContent(pageId) {
+        const { databaseId, notionToken } = this.ctx.app.config
+
         const notionApiUrl = `https://api.notion.com/v1/blocks/${pageId}/children`;
 
         try {

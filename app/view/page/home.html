@@ -101,7 +101,7 @@
                 if (item.url.includes('http')) {
                     window.open(item.url)
                 } else {
-                    window.open(`/<$ ctx.app.config.appId $>/page${tool.url}`)
+                    window.open(`/<$ ctx.app.config.appId $>/page${item.url}`)
                 }
             }
         }
